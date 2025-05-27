@@ -11,7 +11,7 @@ export LANG=en_US.UTF-8
 export TERMINAL="ghostty"
 export VISUAL="nvim"
 export EDITOR="nvim"
-export BROWSER="firefox"
+export BROWSER="zen-browser"
 
 # add npm globals to path (Node, Bun, Deno, JS, TS, etc)
 # export NPM_CONFIG_PREFIX="$XDG_CONFIG_HOME/npm/npm-global"
