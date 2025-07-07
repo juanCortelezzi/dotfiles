@@ -133,34 +133,6 @@ return {
 
       automatic_enable = true,
       -- handlers = {
-      --   ["elixirls"] = function()
-      --     local lspconfig = require("lspconfig")
-      --     lspconfig["lexical"].setup({
-      --       on_attach = on_attach,
-      --       capabilities = {
-      --         textDocument = {
-      --           hover = {
-      --             dynamicRegistration = true,
-      --             contentFormat = { "markdown", "plaintext" },
-      --           },
-      --         },
-      --       },
-      --     })
-      --   end,
-      --   ["lexical"] = function()
-      --     local lspconfig = require("lspconfig")
-      --     local path = vim.fn.expand("~/.local/share/nvim/mason/bin/lexical")
-      --     lspconfig["lexical"].setup({
-      --       cmd = { path, "server" },
-      --       root_dir = lspconfig.util.root_pattern({ "mix.exs" }),
-      --       on_attach = on_attach,
-      --       capabilities = vim.tbl_deep_extend("force", get_capabilities(), {
-      --         textDocument = {
-      --           hover = nil,
-      --         },
-      --       }),
-      --     })
-      --   end,
       --
       --   ["denols"] = function()
       --     local lspconfig = require("lspconfig")
@@ -190,11 +162,13 @@ return {
     },
 
     init = function()
+      -- default config
       vim.lsp.config("*", {
         on_attach = on_attach,
         capabilities = get_capabilities(),
       })
 
+      -- redefine filetypes
       vim.lsp.config.ts_ls = {
         filetypes = {
           "typescript",
@@ -203,6 +177,29 @@ return {
           "mdx",
           "javascript",
         },
+      }
+
+      vim.lsp.config.elixirls = {
+        capabilities = {
+          textDocument = {
+            hover = {
+              dynamicRegistration = true,
+              contentFormat = { "markdown", "plaintext" },
+            },
+          },
+        },
+      }
+
+      vim.lsp.config.lexical = {
+        cmd = {
+          vim.fn.expand("~/.local/share/nvim/mason/bin/lexical"),
+          "server",
+        },
+        capabilities = vim.tbl_deep_extend("force", get_capabilities(), {
+          textDocument = {
+            hover = nil,
+          },
+        }),
       }
 
       vim.lsp.config.tailwindcss = {
