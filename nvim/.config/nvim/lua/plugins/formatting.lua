@@ -14,6 +14,7 @@ return {
         bash = { "shfmt" },
         zig = { "zigfmt" },
         ocaml = { "ocamlformat" },
+        terraform = { "terraform" },
       },
       default_format_opts = {
         timeout_ms = 3000,
