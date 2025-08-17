@@ -179,28 +179,42 @@ return {
         },
       }
 
-      vim.lsp.config.elixirls = {
-        capabilities = {
-          textDocument = {
-            hover = {
-              dynamicRegistration = true,
-              contentFormat = { "markdown", "plaintext" },
-            },
+      vim.lsp.config.nextls = {
+        cmd = { "nextls", "--stdio" },
+        init_options = {
+          extensions = {
+            credo = { enable = true },
+          },
+          experimental = {
+            completions = { enable = true },
           },
         },
+        root_markers = { "mix.exs", ".git" },
       }
 
-      vim.lsp.config.lexical = {
-        cmd = {
-          vim.fn.expand("~/.local/share/nvim/mason/bin/lexical"),
-          "server",
-        },
-        capabilities = vim.tbl_deep_extend("force", get_capabilities(), {
-          textDocument = {
-            hover = nil,
-          },
-        }),
-      }
+      -- vim.lsp.config.elixirls = {
+      --   capabilities = {
+      --     textDocument = {
+      --       hover = {
+      --         dynamicRegistration = true,
+      --         contentFormat = { "markdown", "plaintext" },
+      --       },
+      --     },
+      --   },
+      -- }
+
+      -- vim.lsp.config.lexical = {
+      --   cmd = {
+      --     vim.fn.expand("~/.local/share/nvim/mason/bin/lexical"),
+      --     "server",
+      --   },
+      --   cmd_cwd = vim.fn.expand("~/.local/share/nvim/mason/packages/lexical"),
+      --   capabilities = vim.tbl_deep_extend("force", get_capabilities(), {
+      --     textDocument = {
+      --       hover = nil,
+      --     },
+      --   }),
+      -- }
 
       vim.lsp.config.tailwindcss = {
         filetypes = {
@@ -210,6 +224,8 @@ return {
           "astro",
           "javascript",
           "svelte",
+          "elixir",
+          "heex",
         },
         settings = {
           tailwindCSS = {
