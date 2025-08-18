@@ -25,7 +25,13 @@ return {
         documentation = { window = { border = "rounded" } },
       },
       sources = {
-        default = { "lazydev", "lsp", "path", "snippets", "buffer" },
+        default = {
+          "lazydev",
+          "lsp",
+          "path",
+          "snippets",
+          "buffer",
+        },
         providers = {
           buffer = {
             min_keyword_length = 5,
