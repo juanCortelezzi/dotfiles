@@ -2,6 +2,7 @@
 return {
   "nvim-neo-tree/neo-tree.nvim",
   branch = "v3.x",
+  lazy = false,
   dependencies = {
     "nvim-lua/plenary.nvim",
     { "nvim-tree/nvim-web-devicons", optional = true },
@@ -15,6 +16,10 @@ return {
       -- "child":   Insert nodes as children of the directory under cursor.
       -- "sibling": Insert nodes  as siblings of the directory under cursor.
       insert_as = "child",
+      mappings = {
+        ["<C-v>"] = "open_vsplit",
+        ["<C-h>"] = "open_split",
+      },
     },
     enable_git_status = false,
     enable_diagnostics = false,
@@ -23,9 +28,7 @@ return {
     {
       "<leader><leader>",
       ":Neotree toggle reveal<CR>",
-      {
-        desc = "Open neo-tree at current file or working directory",
-      },
+      { desc = "Open neo-tree at current file or working directory" },
     },
   },
 }
