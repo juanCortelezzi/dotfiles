@@ -31,6 +31,9 @@ return {
         shfmt = {
           prepend_args = { "-i", "2" },
         },
+        black = {
+          prepend_args = { "--line-length", "80" },
+        },
       },
     }
 

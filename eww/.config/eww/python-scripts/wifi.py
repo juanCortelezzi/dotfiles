@@ -4,7 +4,7 @@ import subprocess
 from typing import Any
 
 
-def spit(x: Any):
+def print_flush(x: Any):
     print(x, flush=True)
 
 
@@ -16,18 +16,27 @@ def main():
     )
 
     if wifi_cmd.returncode != 0:
-        spit("unable to read wifi")
+        print_flush("unable to read wifi")
 
     search_for = "yes:"
 
-    ssid_list = list(
-        filter(lambda line: line.startswith(search_for), wifi_cmd.stdout.split("\n"))
+    wifi_cmd_lines = wifi_cmd.stdout.split("\n")
+    connected_ssids = list(
+        map(
+            lambda line: line.lstrip(search_for),
+            filter(
+                lambda line: line.startswith(search_for),
+                wifi_cmd_lines,
+            ),
+        )
     )
 
-    if len(ssid_list) < 1:
-        return spit("󰤯 No wifi?")
+    if len(connected_ssids) < 1:
+        return print_flush("󰤯 No wifi?")
 
-    spit(f"󰤥 {ssid_list[0][len(search_for) :]}")
+    ssid = connected_ssids[0]
+
+    print_flush(f"󰤥 {ssid}")
 
 
 if __name__ == "__main__":
