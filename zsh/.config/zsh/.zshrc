@@ -6,18 +6,19 @@ WORDCHARS=${WORDCHARS//\/[&.;]} # Don't consider certain characters part of the 
 
 ## Options section
 # setopt autocd               # if only directory path is entered, cd there.
-setopt extendedglob           # Extended globbing. Allows using regular expressions with *
-setopt nocaseglob             # Case insensitive globbing
-setopt rcexpandparam          # Array expension with parameters
-setopt nocheckjobs            # Don't warn about running processes when exiting
-setopt numericglobsort        # Sort filenames numerically when it makes sense
-setopt nobeep                 # No beep
-setopt appendhistory          # Immediately append history instead of overwriting
-setopt histignorealldups      # If a new command is a duplicate, remove the older one
+setopt extended_glob           # Extended globbing. Allows using regular expressions with *
+setopt no_case_glob             # Case insensitive globbing
+setopt numeric_glob_sort        # Sort filenames numerically when it makes sense
+setopt rc_expand_param          # Array expension with parameters
+setopt no_check_jobs            # Don't warn about running processes when exiting
+setopt no_beep                 # No beep
+setopt append_history          # Immediately append history instead of overwriting
+setopt hist_ignore_all_dups      # If a new command is a duplicate, remove the older one
 setopt inc_append_history     # save commands are added to the history immediately, otherwise only when shell exits.
+setopt share_history # share hist file across zsh sessions
 
 # Theming section
-autoload -U compinit && compinit -d "$XDG_CACHE_HOME/zsh/zcompdump"
+autoload -Uz compinit && compinit -d "$XDG_CACHE_HOME/zsh/zcompdump"
 # autoload -U colors && colors
 # autoload -U zcalc
 
@@ -25,8 +26,8 @@ autoload -U compinit && compinit -d "$XDG_CACHE_HOME/zsh/zcompdump"
 autoload edit-command-line; zle -N edit-command-line
 bindkey '^e' edit-command-line
 
-autoload -U up-line-or-beginning-search
-autoload -U down-line-or-beginning-search
+autoload -Uz up-line-or-beginning-search
+autoload -Uz down-line-or-beginning-search
 zle -N up-line-or-beginning-search
 zle -N down-line-or-beginning-search
 
@@ -92,4 +93,4 @@ if command -v -- "zoxide" > /dev/null 2>&1; then
 fi
 
 # bun completions
-[ -s "/home/wiz/.config/bun/_bun" ] && source "/home/wiz/.config/bun/_bun"
+[ -s "/home/wiz/.config/bun/_bun" ] && source "$XDG_CONFIG_HOME/bun/_bun"
