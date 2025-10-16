@@ -16,6 +16,7 @@ opt.timeoutlen = 300 -- Timeout for keymaps
 opt.undofile = true
 opt.undolevels = 10000
 opt.winminwidth = 5 -- Minimum width for windows
+opt.swapfile = false -- Write flie straight to disk instead of breaking hot reloading
 
 opt.list = true -- Shows hidden characters (whitespace and stuff...)
 opt.listchars = {
