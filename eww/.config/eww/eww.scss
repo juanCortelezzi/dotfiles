@@ -1,16 +1,15 @@
-$surface0: #313244;
-$base: #1e1e2e;
-$mantle: #181825;
-$text: #cdd6f4;
-$accent: #f2cdcd;
-$roundness: 5px;
+$base: #232136; // rose pine moon base
+$bg: #393552; // rose pine moon overlay
+$text: #e0def4; // rose pine moon text
+$accent: #ea9a97; // rose pine moon rose
+$roundness: 6px;
 
 * {
   all: unset; // default styles suck
 }
 
 .main {
-  background-color: $mantle;
+  background-color: $base;
   color: $text;
   font-family: "Hack Nerd Font", monospace;
   // font-family: "JetBrainsMono Nerd Font", monospace;
@@ -38,11 +37,11 @@ $roundness: 5px;
 }
 
 .workspace_inactive {
-  background-color: $surface0;
+  background-color: $bg;
   color: $text;
 }
 
 .workspace_active {
   background-color: $accent;
-  color: $surface0;
+  color: $bg;
 }
