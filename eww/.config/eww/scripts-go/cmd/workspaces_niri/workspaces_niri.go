@@ -1,4 +1,4 @@
-package main
+package workspaces_niri
 
 import (
 	"bufio"
@@ -66,11 +66,6 @@ type WorkspaceEww struct {
 	WindowQty uint8 `json:"window_qty"`
 }
 
-type Window struct {
-	Id          uint64  `json:"id"`
-	WorkspaceId *uint64 `json:"workspace_id,omitempty"`
-}
-
 // LogValue implements slog.LogValuer
 func (w WorkspaceEww) LogValue() slog.Value {
 	return slog.GroupValue(
@@ -78,6 +73,11 @@ func (w WorkspaceEww) LogValue() slog.Value {
 		slog.Bool("isFocused", w.IsFocused),
 		slog.Int("windowQty", int(w.WindowQty)),
 	)
+}
+
+type Window struct {
+	Id          uint64  `json:"id"`
+	WorkspaceId *uint64 `json:"workspace_id,omitempty"`
 }
 
 // State keeps track of all the state necessary for the bar to work
@@ -93,7 +93,7 @@ func NewWorkspaceState() *State {
 	}
 }
 
-func (state *State) Print(logger *slog.Logger) {
+func (state *State) toJson(logger *slog.Logger) string {
 	workspacesEww := make([]WorkspaceEww, 0, len(state.Workspaces))
 	for _, workspace := range state.Workspaces {
 		var windowQty uint8
@@ -127,10 +127,10 @@ func (state *State) Print(logger *slog.Logger) {
 			slog.Any("workspaces", workspacesEww),
 			slog.String("error", err.Error()),
 		)
-		os.Exit(1)
+		panic("crash and burn")
 	}
 
-	fmt.Println(string(workspacesJson))
+	return string(workspacesJson)
 }
 
 func handleWorkspacesChangedEvent(logger *slog.Logger, event *WorkspacesChangedEvent, state *State) {
@@ -139,7 +139,8 @@ func handleWorkspacesChangedEvent(logger *slog.Logger, event *WorkspacesChangedE
 	for _, w := range event.Workspaces {
 		state.Workspaces[w.Id] = w
 	}
-	state.Print(logger)
+	str := state.toJson(logger)
+	fmt.Println(str)
 }
 
 func handleWorkspaceActivatedEvent(logger *slog.Logger, event *WorkspaceActivatedEvent, state *State) {
@@ -159,7 +160,7 @@ func handleWorkspaceActivatedEvent(logger *slog.Logger, event *WorkspaceActivate
 			"Could not find WorkspaceActivated",
 			slog.Uint64("workspace_id", event.Id),
 		)
-		os.Exit(1)
+		panic("crash and burn")
 	}
 
 	for workspaceId, workspace := range state.Workspaces {
@@ -167,7 +168,8 @@ func handleWorkspaceActivatedEvent(logger *slog.Logger, event *WorkspaceActivate
 		state.Workspaces[workspaceId] = workspace
 	}
 
-	state.Print(logger)
+	str := state.toJson(logger)
+	fmt.Println(str)
 }
 
 func handleWindowsChangedEvent(logger *slog.Logger, event *WindowsChangedEvent, state *State) {
@@ -176,7 +178,8 @@ func handleWindowsChangedEvent(logger *slog.Logger, event *WindowsChangedEvent, 
 	for _, w := range event.Windows {
 		state.Windows[w.Id] = w
 	}
-	state.Print(logger)
+	str := state.toJson(logger)
+	fmt.Println(str)
 }
 
 func handleWindowOpenedOrChangedEvent(logger *slog.Logger, event *WindowOpenedOrChangedEvent, state *State) {
@@ -191,7 +194,8 @@ func handleWindowOpenedOrChangedEvent(logger *slog.Logger, event *WindowOpenedOr
 		)
 
 		state.Windows[event.Window.Id] = event.Window
-		state.Print(logger)
+		str := state.toJson(logger)
+		fmt.Println(str)
 		return
 	}
 
@@ -204,25 +208,23 @@ func handleWindowOpenedOrChangedEvent(logger *slog.Logger, event *WindowOpenedOr
 	window.WorkspaceId = event.Window.WorkspaceId
 	state.Windows[event.Window.Id] = window
 
-	state.Print(logger)
+	str := state.toJson(logger)
+	fmt.Println(str)
 }
 
 func handleWindowClosedEvent(logger *slog.Logger, event *WindowClosedEvent, state *State) {
 	logger.Debug("Received WindowClosed event")
 	delete(state.Windows, event.Id)
-	state.Print(logger)
+	str := state.toJson(logger)
+	fmt.Println(str)
 }
 
-func main() {
-	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
-		Level: slog.LevelInfo,
-	}))
-
+func Run(logger *slog.Logger) {
 	// Get socket path from environment
 	socketPath := os.Getenv("NIRI_SOCKET")
 	if socketPath == "" {
 		logger.Error("NIRI_SOCKET environment variable is not set")
-		os.Exit(1)
+		panic("crash and burn")
 	}
 
 	// Connect to Unix socket
@@ -232,7 +234,7 @@ func main() {
 			"Failed to connect to socket",
 			slog.String("error", err.Error()),
 		)
-		os.Exit(1)
+		panic("crash and burn")
 	}
 	defer conn.Close()
 
@@ -242,16 +244,16 @@ func main() {
 	request, err := json.Marshal(RequestEventStream)
 	if err != nil {
 		logger.Error("Failed to marshal request", slog.String("error", err.Error()))
-		os.Exit(1)
+		panic("crash and burn")
 	}
 
 	_, err = conn.Write(append(request, '\n'))
 	if err != nil {
 		logger.Error("Failed to send request", slog.String("error", err.Error()))
-		os.Exit(1)
+		panic("crash and burn")
 	}
 
-	logger.Info("Sent EventStream request, waiting for events...")
+	logger.Debug("Sent EventStream request, waiting for events...")
 
 	// Read response
 	scanner := bufio.NewScanner(conn)
@@ -262,6 +264,7 @@ func main() {
 		str := scanner.Text()
 		if str != "{\"Ok\":\"Handled\"}" {
 			logger.Error("Failed to parse reply", slog.String("reply", str))
+			panic("crash and burn")
 		}
 
 		logger.Info("EventStream activated successfully")
@@ -279,28 +282,32 @@ func main() {
 		// Handle workspace events
 		if event.WorkspacesChanged != nil {
 			handleWorkspacesChangedEvent(logger, event.WorkspacesChanged, state)
+			continue
 		}
 
 		if event.WorkspaceActivated != nil {
 			handleWorkspaceActivatedEvent(logger, event.WorkspaceActivated, state)
+			continue
 		}
 
 		if event.WindowsChanged != nil {
 			handleWindowsChangedEvent(logger, event.WindowsChanged, state)
+			continue
 		}
 
 		if event.WindowOpenedOrChanged != nil {
 			handleWindowOpenedOrChangedEvent(logger, event.WindowOpenedOrChanged, state)
+			continue
 		}
 
 		if event.WindowClosed != nil {
 			handleWindowClosedEvent(logger, event.WindowClosed, state)
+			continue
 		}
-
 	}
 
 	if err := scanner.Err(); err != nil {
 		logger.Error("Error reading from socket", slog.String("error", err.Error()))
-		os.Exit(1)
+		panic("crash and burn")
 	}
 }
