@@ -7,37 +7,52 @@
   `$XDG_CONFIG_HOME/eww/python-scripts/wifi.py`)
 
 (deflisten workspaces :initial "[]"
-	`$XDG_CONFIG_HOME/eww/scripts/target/release/workspaces`)
+	`$XDG_CONFIG_HOME/eww/scripts-go/workspaces_niri`)
 
 
-(defwidget workspaces []
+;; (defwidget workspaces []
+;;   (box :orientation "h" :space-evenly false :spacing 10
+;;     (box :orientation "h" :space-evenly false :class "workspace_container"
+;;       (for workspace in workspaces
+;;         (button 
+;;           :class "workspace_btn ${workspace.isactive ? "workspace_active" : "workspace_inactive"}"
+;;           :onclick `hyprctl dispatch workspace ${workspace.name}`
+;;           "${workspace.id}"
+;;         ))
+;;     )
+;;
+;;     (for workspace in workspaces
+;;       (box :visible {workspace.isactive && workspace.hasfullscreen} "M[${workspace.windows}]"))
+;;   )
+;; )
+
+(defwidget workspaces_niri []
   (box :orientation "h" :space-evenly false :spacing 10
     (box :orientation "h" :space-evenly false :class "workspace_container"
       (for workspace in workspaces
         (button 
-          :class "workspace_btn ${workspace.isactive ? "workspace_active" : "workspace_inactive"}"
-          :onclick `hyprctl dispatch workspace ${workspace.name}`
-          "${workspace.id}"
+          :class "workspace_btn ${workspace.is_focused ? "workspace_active" : "workspace_inactive"}"
+          :onclick `niri msg action focus-workspace ${workspace.idx}`
+          "${workspace.idx}"
         ))
     )
 
     (for workspace in workspaces
-      (box :visible {workspace.isactive && workspace.hasfullscreen} "M[${workspace.windows}]"))
+      (box :visible {workspace.is_focused} "(${workspace.window_qty})"))
   )
 )
 
-(defwidget battery [] 
+(defwidget battery []
       "${EWW_BATTERY["BAT0"].status == "Charging" 
         ? battery_icons[11] 
         : battery_icons[round(EWW_BATTERY["BAT0"].capacity / 10, 0)]
       } ${EWW_BATTERY["BAT0"].capacity}%"
 )
 
-(defwidget ram [] "󰍛 ${round(EWW_RAM.used_mem / 1024 / 1024 / 1024, 1)}GB")
+;; (defwidget ram [] "󰍛 ${round(EWW_RAM.used_mem / 1024 / 1024 / 1024, 1)}GB")
 
 (defwidget sidestuff []
     (box :orientation "h" :space-evenly false :halign "end" :spacing 10
-
       "${wifi}"
       ;; (ram)
       (battery)
@@ -48,19 +63,18 @@
   (centerbox 
     :orientation "h" 
     :class "main"
-    (workspaces)
+    (workspaces_niri)
     (label :xalign 0.5 :text "${time}")
     (sidestuff))
 )
 
 (defwindow bar
-	:monitor 0
-	:exclusive true	
+  :monitor 0
+  :exclusive true
   :focusable false
-	:geometry (geometry 
-			:width "100%"
-			:height "25px"
-      :anchor "top center"
-  )
+  :geometry (geometry
+          :width "100%"
+          :height "25px"
+          :anchor "top center")
   (bar)
 )
