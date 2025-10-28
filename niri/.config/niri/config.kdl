@@ -5,7 +5,7 @@
 
 // This line starts waybar, a commonly used bar for Wayland compositors.
 spawn-at-startup "/usr/lib/polkit-kde-authentication-agent-1"
-spawn-sh-at-startup "swaybg -i ~/Pictures/wallpapers/catpuccin_leaves.png"
+spawn-sh-at-startup "swaybg -i ~/Pictures/wallpapers/altos_oddisey.png"
 spawn-at-startup "udiskie"
 spawn-at-startup "eww" "daemon"
 spawn-at-startup "eww" "open" "bar"
@@ -40,6 +40,12 @@ input {
 output "eDP-1" {
     // You can use integer or fractional scale, for example use 1.5 for 150% scale.
     scale 1.2
+}
+
+gestures {
+    hot-corners {
+      off
+    }
 }
 
 // Settings that influence how windows are positioned and sized.
@@ -111,7 +117,7 @@ layout {
         //
         // The focus ring only draws around the active window, so the only place
         // where you can see its inactive-color is on other monitors.
-        inactive-color "#595959aa"
+        inactive-color "#2a273f" // rose pine moon surface
 
         // You can also use gradients. They take precedence over solid colors.
         // Gradients are rendered the same as CSS linear-gradient(angle, from, to).
@@ -119,8 +125,7 @@ layout {
         // defaulting to 180 (top-to-bottom gradient).
         // You can use any CSS linear-gradient tool on the web to set these up.
         // Changing the color space is also supported, check the wiki for more info.
-        //
-        active-gradient from="#f2cdcd" to="#cba6f7" angle=45
+        active-gradient from="#ea9a97" to="#f6c177" angle=135 // rose pine moon rose->pine
 
         // You can also color the gradient relative to the entire view
         // of the workspace, rather than relative to just the window itself.
@@ -136,11 +141,11 @@ layout {
         off
 
         width 4
-        active-color "#ffc87f"
-        inactive-color "#505050"
+        // active-color "#ffc87f"
+        // inactive-color "#ffffff"
 
         // Color of the border around windows that request your attention.
-        urgent-color "#9b0000"
+        // urgent-color "#9b0000"
 
         // Gradients can use a few different interpolation color spaces.
         // For example, this is a pastel rainbow gradient via in="oklch longer hue".
@@ -273,22 +278,22 @@ binds {
     Mod+Ctrl+J     { move-window-down; }
     Mod+Ctrl+K     { move-window-up; }
     Mod+Ctrl+L     { move-column-right; }
-    // Mod+Ctrl+Left  { move-column-left; }
-    // Mod+Ctrl+Down  { move-window-down; }
-    // Mod+Ctrl+Up    { move-window-up; }
-    // Mod+Ctrl+Right { move-column-right; }
+    // Mod+Shift+Left  { move-column-left; }
+    // Mod+Shift+Down  { move-window-down; }
+    // Mod+Shift+Up    { move-window-up; }
+    // Mod+Shift+Right { move-column-right; }
 
     // Mod+Home { focus-column-first; }
     // Mod+End  { focus-column-last; }
     // Mod+Ctrl+Home { move-column-to-first; }
     // Mod+Ctrl+End  { move-column-to-last; }
 
-    Mod+U              { focus-workspace-down; }
-    Mod+I              { focus-workspace-up; }
-    Mod+Ctrl+U         { move-column-to-workspace-down; }
-    Mod+Ctrl+I         { move-column-to-workspace-up; }
-    Mod+Shift+U        { move-workspace-down; }
-    Mod+Shift+I        { move-workspace-up; }
+    Mod+Shift+J              { focus-workspace-down; }
+    Mod+Shift+K              { focus-workspace-up; }
+    Mod+Shift+Ctrl+J         { move-column-to-workspace-down; }
+    Mod+Shift+Ctrl+K         { move-column-to-workspace-up; }
+    Mod+Shift+Alt+J        { move-workspace-down; }
+    Mod+Shift+Alt+K        { move-workspace-up; }
 
     // Similarly, you can bind touchpad scroll "ticks".
     // Touchpad scrolling is continuous, so for these binds it is split into
@@ -298,33 +303,6 @@ binds {
     // touchpads by default.
     // Mod+TouchpadScrollDown { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.02+"; }
     // Mod+TouchpadScrollUp   { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.02-"; }
-
-    // You can refer to workspaces by index. However, keep in mind that
-    // niri is a dynamic workspace system, so these commands are kind of
-    // "best effort". Trying to refer to a workspace index bigger than
-    // the current workspace count will instead refer to the bottommost
-    // (empty) workspace.
-    //
-    // For example, with 2 workspaces + 1 empty, indices 3, 4, 5 and so on
-    // will all refer to the 3rd workspace.
-    Mod+1 { focus-workspace 1; }
-    Mod+2 { focus-workspace 2; }
-    Mod+3 { focus-workspace 3; }
-    Mod+4 { focus-workspace 4; }
-    Mod+5 { focus-workspace 5; }
-    Mod+6 { focus-workspace 6; }
-    Mod+7 { focus-workspace 7; }
-    Mod+8 { focus-workspace 8; }
-    Mod+9 { focus-workspace 9; }
-    Mod+Ctrl+1 { move-column-to-workspace 1; }
-    Mod+Ctrl+2 { move-column-to-workspace 2; }
-    Mod+Ctrl+3 { move-column-to-workspace 3; }
-    Mod+Ctrl+4 { move-column-to-workspace 4; }
-    Mod+Ctrl+5 { move-column-to-workspace 5; }
-    Mod+Ctrl+6 { move-column-to-workspace 6; }
-    Mod+Ctrl+7 { move-column-to-workspace 7; }
-    Mod+Ctrl+8 { move-column-to-workspace 8; }
-    Mod+Ctrl+9 { move-column-to-workspace 9; }
 
     // The following binds move the focused window in and out of a column.
     // If the window is alone, they will consume it into the nearby column to the side.
@@ -340,14 +318,14 @@ binds {
     Mod+R { switch-preset-column-width; }
     // Cycling through the presets in reverse order is also possible.
     // Mod+R { switch-preset-column-width-back; }
-    Mod+Shift+R { switch-preset-window-height; }
-    Mod+Ctrl+R { reset-window-height; }
+    // Mod+Shift+R { switch-preset-window-height; }
+    // Mod+Ctrl+R { reset-window-height; }
     Mod+F { maximize-column; }
     Mod+Shift+F { fullscreen-window; }
 
     // Expand the focused column to space not taken up by other fully visible columns.
     // Makes the column "fill the rest of the space".
-    Mod+Ctrl+F { expand-column-to-available-width; }
+    // Mod+Ctrl+F { expand-column-to-available-width; }
 
     // Mod+C { center-column; }
     // // Center all fully visible columns on screen.
@@ -360,7 +338,7 @@ binds {
     // Toggle tabbed column display mode.
     // Windows in this column will appear as vertical tabs,
     // rather than stacked on top of each other.
-    Mod+M { toggle-column-tabbed-display; }
+    // Mod+M { toggle-column-tabbed-display; }
 
     // Actions to switch layouts.
     // Note: if you uncomment these, make sure you do NOT have
@@ -370,9 +348,7 @@ binds {
     // Mod+Space       { switch-layout "next"; }
     // Mod+Shift+Space { switch-layout "prev"; }
 
-    Print { screenshot; }
-    Ctrl+Print { screenshot-screen; }
-    Alt+Print { screenshot-window; }
+    Mod+P { screenshot; }
 
     // Applications such as remote-desktop clients and software KVM switches may
     // request that niri stops processing the keyboard shortcuts defined here
