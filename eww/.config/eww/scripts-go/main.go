@@ -36,6 +36,7 @@ func main() {
 		wifi.Get()
 	case "workspaces_niri":
 		workspaces_niri.Run(logger)
+		logger.Info("successfuly finished executing workspaces_niri.")
 	default:
 		fmt.Fprintf(os.Stderr, "Unknown command: %s\n\n", command)
 		flag.Usage()
