@@ -93,4 +93,6 @@ if command -v -- "zoxide" > /dev/null 2>&1; then
 fi
 
 # bun completions
-[ -s "/home/wiz/.config/bun/_bun" ] && source "$XDG_CONFIG_HOME/bun/_bun"
+[ -s "$XDG_CONFIG_HOME/bun/_bun" ] && source "$XDG_CONFIG_HOME/bun/_bun"
+
+[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ] && source "$SDKMAN_DIR/bin/sdkman-init.sh"

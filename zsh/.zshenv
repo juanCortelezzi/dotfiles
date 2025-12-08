@@ -40,6 +40,9 @@ export OPAMROOT="$XDG_DATA_HOME/opam"
 export GOPATH="$XDG_DATA_HOME/golang/gopath"
 export PATH="$GOPATH/bin:$PATH"
 
+# Java
+export SDKMAN_DIR="$XDG_DATA_HOME/sdkman"
+
 # enabel mix xdg directories (Elixir)
 export MIX_XDG=1
 
