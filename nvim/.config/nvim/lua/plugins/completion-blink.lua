@@ -21,8 +21,14 @@ return {
     opts = {
       -- signature = { enabled = true },
       completion = {
-        menu = { border = "rounded" },
-        documentation = { window = { border = "rounded" } },
+        menu = {
+          border = "rounded",
+        },
+        documentation = {
+          window = {
+            border = "rounded",
+          },
+        },
       },
       sources = {
         default = {

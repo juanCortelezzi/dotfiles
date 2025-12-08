@@ -40,7 +40,15 @@ local function on_attach(client, bufnr)
     vim.lsp.buf.definition,
     { buffer = bufnr, desc = "Go to definition" }
   )
-  keymap("n", "K", vim.lsp.buf.hover, { buffer = bufnr, desc = "Hover" })
+  keymap("n", "K", function()
+    vim.lsp.buf.hover({
+      max_width = math.max(math.floor(vim.o.columns * 0.4), 60),
+      border = "rounded",
+    })
+  end, {
+    buffer = bufnr,
+    desc = "Hover",
+  })
   keymap("n", "grn", vim.lsp.buf.rename, { buffer = bufnr, desc = "Rename" })
   keymap(
     "n",
@@ -232,6 +240,60 @@ return {
             experimental = {
               classRegex = {
                 { "tv\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]" },
+              },
+            },
+          },
+        },
+      }
+
+      vim.lsp.config.jdtls = {
+
+        ---@param dispatchers? vim.lsp.rpc.Dispatchers
+        ---@param config vim.lsp.ClientConfig
+        cmd = function(dispatchers, config)
+          local cache_dir = vim.fn.stdpath("cache")
+          local data_dir = vim.fs.joinpath(cache_dir, "/jdtls/workspace")
+          if config.root_dir then
+            local project_name = vim.fn.fnamemodify(config.root_dir, ":p:h:t")
+            data_dir = vim.fs.joinpath(data_dir, project_name)
+          end
+
+          local lombok_jar = vim.fn.expand("$MASON/share/jdtls/lombok.jar")
+
+          local config_cmd = {
+            "jdtls",
+            "-data",
+            data_dir,
+            string.format("--jvm-arg=-javaagent:%s", lombok_jar),
+          }
+
+          return vim.lsp.rpc.start(config_cmd, dispatchers, {
+            cwd = config.cmd_cwd,
+            env = config.cmd_env,
+            detached = config.detached,
+          })
+        end,
+        settings = {
+          java = {
+            configuration = {
+              -- See https://github.com/eclipse/eclipse.jdt.ls/wiki/Running-the-JAVA-LS-server-from-the-command-line#initialize-request
+              -- And search for `interface RuntimeOption`
+              -- The `name` is NOT arbitrary, but must match one of the elements from `enum ExecutionEnvironment` in the link above
+              runtimes = {
+                {
+                  name = "JavaSE-21",
+                  path = vim.fs.joinpath(
+                    vim.env.SDKMAN_DIR,
+                    "candidates/java/21.0.9-tem/"
+                  ),
+                },
+                {
+                  name = "JavaSE-25",
+                  path = vim.fs.joinpath(
+                    vim.env.SDKMAN_DIR,
+                    "candidates/java/25.0.1-tem/"
+                  ),
+                },
               },
             },
           },
