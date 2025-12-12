@@ -2,7 +2,7 @@
 return {
   {
     "saghen/blink.cmp",
-    version = "v0.10.0",
+    version = "v1.7.0",
     enabled = true,
     dependencies = {
       "rafamadriz/friendly-snippets",
@@ -19,6 +19,10 @@ return {
     },
     opts_extend = { "sources.default" },
     opts = {
+      keymap = {
+        preset = "default",
+        ["<Tab>"] = false,
+      },
       -- signature = { enabled = true },
       completion = {
         menu = {
