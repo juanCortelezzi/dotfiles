@@ -15,7 +15,6 @@ setopt no_beep                 # No beep
 setopt append_history          # Immediately append history instead of overwriting
 setopt hist_ignore_all_dups      # If a new command is a duplicate, remove the older one
 setopt inc_append_history     # save commands are added to the history immediately, otherwise only when shell exits.
-setopt share_history # share hist file across zsh sessions
 
 # Theming section
 autoload -Uz compinit && compinit -d "$XDG_CACHE_HOME/zsh/zcompdump"
