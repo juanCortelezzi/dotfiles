@@ -3,29 +3,21 @@
 # forked from christian chiarulli machfiles repo on:
 # https://github.com/christianchiarulli/machfiles
 ## autoload vcs and colors
-autoload -Uz vcs_info
+autoload -Uz add-zsh-hook vcs_info
 autoload -U colors && colors
 
-# enable only git 
-zstyle ':vcs_info:*' enable git 
+# enable only git so zsh does not probe other VCS backends
+zstyle ':vcs_info:*' enable git
 
-# setup a hook that runs before every ptompt. 
+# branch-only git info is fast; avoid worktree status checks in large repos
+zstyle ':vcs_info:*' check-for-changes false
+zstyle ':vcs_info:*' check-for-staged-changes false
+zstyle ':vcs_info:git:*' formats " %{$fg[blue]%}(%{$fg[yellow]%}%{$fg[magenta]%} %b%{$fg[blue]%})"
+zstyle ':vcs_info:git:*' actionformats " %{$fg[blue]%}(%{$fg[yellow]%}%{$fg[magenta]%} %b%{$fg[red]%}|%a%{$fg[blue]%})"
+
 precmd_vcs_info() { vcs_info }
-precmd_functions+=( precmd_vcs_info )
+add-zsh-hook precmd precmd_vcs_info
 setopt prompt_subst
 
-zstyle ':vcs_info:git*+set-message:*' hooks git-untracked
-
-+vi-git-untracked(){
-    if [[ $(git rev-parse --is-inside-work-tree 2> /dev/null) == 'true' ]] && \
-        git status --porcelain | grep '??' &> /dev/null ; then
-        hook_com[staged]+='!'
-    fi
-}
-
-zstyle ':vcs_info:*' check-for-changes true
-zstyle ':vcs_info:git:*' formats " %{$fg[blue]%}(%{$fg[red]%}%m%u%c%{$fg[yellow]%}%{$fg[magenta]%} %b%{$fg[blue]%})"
-
-PROMPT="%B%{$fg[blue]%}[%{$fg[white]%}%n%{$fg[red]%}@%{$fg[white]%}%m%{$fg[blue]%}]%(?:%{$fg_bold[green]%}$ :%{$fg_bold[red]%}$ )%{$fg[cyan]%}%c"
-PROMPT+="\$vcs_info_msg_0_ %{$reset_color%}"
-
+PROMPT="%B%{$fg[blue]%}[%{$fg[white]%}%n%{$fg[red]%}@%{$fg[white]%}%m%{$fg[blue]%}]%(?:%{$fg_bold[green]%}$ :%{$fg_bold[red]%}$ )%{$fg[cyan]%}%c%{$reset_color%}"
+PROMPT+="\$vcs_info_msg_0_%{$reset_color%} "
