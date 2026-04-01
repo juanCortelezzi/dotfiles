@@ -85,7 +85,7 @@ end
 ---@type LazySpec
 return {
   "nvim-telescope/telescope.nvim",
-  tag = "0.1.8",
+  tag = "v0.2.1",
   dependencies = {
     "nvim-lua/plenary.nvim",
     { "nvim-tree/nvim-web-devicons", optional = true },
@@ -93,6 +93,7 @@ return {
   },
   opts = {
     defaults = {
+      preview = false,
       mappings = {
         i = {
           ["<c-t>"] = function(bufnr, opts)
@@ -116,13 +117,13 @@ return {
     telescope.load_extension("fzf")
   end,
   keys = {
-    {
-      "<leader>f",
-      function()
-        require("telescope.builtin").find_files()
-      end,
-      desc = "Telescope find files",
-    },
+    -- {
+    --   "<leader>f",
+    --   function()
+    --     require("telescope.builtin").find_files()
+    --   end,
+    --   desc = "Telescope find files",
+    -- },
     {
       "<leader>g",
       function()
