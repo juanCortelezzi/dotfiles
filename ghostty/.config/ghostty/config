@@ -1,4 +1,5 @@
-theme = GruvboxDark
+title = "Ghostty"
+theme = Gruvbox Dark
 
 initial-command = /usr/bin/tmux new -ADs dev
 
@@ -7,8 +8,8 @@ font-feature = -calt
 font-feature = -liga
 font-feature = -dlig
 
+window-decoration = true
 window-padding-color = background
-window-decoration = false
 window-padding-x = 2
 window-padding-y = 2
 
