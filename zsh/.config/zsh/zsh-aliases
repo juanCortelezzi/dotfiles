@@ -13,7 +13,6 @@ alias k="kubectl"
 alias wget="wget --hsts-file=\"$XDG_DATA_HOME/wget-hsts\""
 alias pn="pnpm"
 alias g='git'
-alias parrot="curl parrot.live"
 
 function extract {
   if [ -z "$1" ]; then

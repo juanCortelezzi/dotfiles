@@ -1,4 +1,9 @@
-#!/bin/sh
+# load zsh prompts
+fpath=($fpath "$ZDOTDIR/.zfunctions")
+
+if [[ "$(tty)" = "/dev/tty1" ]]; then
+    alias x='startx ~/.config/X11/xinitrc'
+fi
 
 # forked from christian chiarulli machfiles repo on:
 # https://github.com/christianchiarulli/machfiles
