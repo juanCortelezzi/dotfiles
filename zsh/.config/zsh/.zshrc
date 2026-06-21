@@ -1,13 +1,14 @@
 setopt no_beep              # No beep
 setopt numeric_glob_sort    # Sort filenames numerically when it makes sense
-# setopt extended_glob      # Extended globbing. Allows using regular expressions with *
+# setopt extended_glob      # Enable zsh extended glob patterns
 
 setopt extended_history       # Save timestamp of commands on history
-setopt inc_append_history     # Save commands are added to the history immediately, otherwise only when shell exits.
+setopt inc_append_history     # Save commands are added to the history immediately, otherwise only when shell exits
 setopt hist_ignore_all_dups   # If a new command is a duplicate, remove the older one
 setopt hist_expire_dups_first # Expire duplicates first when trimming history
 setopt hist_verify            # Don't execute immediately on history expansion
 setopt hist_reduce_blanks     # Remove extra blanks from commands
+unsetopt share_history        # I don't like sharing history across tmux panes
 
 mkdir -p "$XDG_CACHE_HOME/zsh"
 HISTFILE="$XDG_CACHE_HOME/zsh/zhistory"
@@ -39,18 +40,21 @@ bindkey "^j" down-line-or-beginning-search # Down
 zmodload zsh/complist
 _comp_options+=(globdots) # Show dotfiles on completion
 
-# Speed up completions
 zstyle ':completion:*' menu select
 zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
 zstyle ':completion:*' use-cache on
 zstyle ':completion:*' cache-path "$XDG_CACHE_HOME/zsh/.zcache"
 
+if [ -f "$ZDOTDIR/zsh-aliases" ]; then
+  source "$ZDOTDIR/zsh-aliases"
+fi
+
+if [ -f "$ZDOTDIR/zsh-prompt" ]; then
+  source "$ZDOTDIR/zsh-prompt"
+fi
+
 # Useful funcions
 source "$ZDOTDIR/zsh-functions"
-
-# Load aliases and shortcuts if existent.
-zsh_add_file "$ZDOTDIR/zsh-aliases"
-zsh_add_file "$ZDOTDIR/zsh-prompt"
 
 # Load pluggins
 ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern regexp)
@@ -83,15 +87,6 @@ zsh_add_plugin "zsh-users/zsh-syntax-highlighting"
 #     source "$XDG_RUNTIME_DIR/ssh-agent.env" >/dev/null
 # fi
 
-if command -v -- "zoxide" > /dev/null 2>&1; then
-    eval "$(zoxide init zsh)"
-fi
-
-# direnv hook
-if command -v -- "direnv" > /dev/null 2>&1; then
-    eval "$(direnv hook zsh)"
-fi
-
 # bun completions
 # [ -s "$XDG_CONFIG_HOME/bun/_bun" ] && source "$XDG_CONFIG_HOME/bun/_bun"
 
@@ -100,3 +95,13 @@ fi
 
 # SDKman init
 # [ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ] && source "$SDKMAN_DIR/bin/sdkman-init.sh"
+
+# zoxide hook
+if command -v -- "zoxide" > /dev/null 2>&1; then
+    eval "$(zoxide init zsh)"
+fi
+
+# direnv hook
+if command -v -- "direnv" > /dev/null 2>&1; then
+    eval "$(direnv hook zsh)"
+fi
