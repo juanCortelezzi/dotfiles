@@ -4,7 +4,13 @@ opt.confirm = true -- Confirm to save changes before closing modified buffer.
 opt.wrap = false
 opt.number = true
 opt.relativenumber = true
+
+if vim.env.SSH_TTY ~= nil then
+  -- Use the laptop clipboard through Ghostty and tmux over SSH.
+  vim.g.clipboard = "osc52"
+end
 opt.clipboard = "unnamedplus" -- Use system clipboard
+
 opt.splitright = true -- New window is put rigt of the current one.
 opt.splitbelow = true -- New window from split is belaw the current one.
 opt.mouse = "a" -- Enable mouse mode
