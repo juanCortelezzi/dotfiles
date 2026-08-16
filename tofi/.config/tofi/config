@@ -11,7 +11,7 @@ padding-right = 0
 horizontal = true
 font-size = 12
 prompt-text = "run:"
-font = "/home/wiz/.local/share/fonts/Hack/HackNerdFontMono-Regular.ttf"
+font = "$XDG_DATA_HOME/fonts/Hack/HackNerdFontMono-Regular.ttf"
 outline-width = 0
 border-width = 0
 
