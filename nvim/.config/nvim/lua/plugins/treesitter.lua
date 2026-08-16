@@ -1,56 +1,34 @@
 ---@type LazySpec
 return {
   {
-
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
     version = false,
-    event = { "BufReadPost", "BufNewFile" },
-    cmd = { "TSUpdateSync" },
-    keys = {
-      { "<c-space>", desc = "Increment selection" },
-      { "<bs>", desc = "Decrement selection", mode = "x" },
-    },
-
-    opts = {
-      ensure_installed = {
+    lazy = false,
+    config = function()
+      local parsers = {
         "c",
+        "java",
         "lua",
-        "vim",
-        "vimdoc",
-        "query",
         "markdown",
         "markdown_inline",
-      },
-      ignore_install = {},
-      -- Install parsers synchronously (only applied to `ensure_installed`)
-      sync_install = false,
+        "query",
+        "vim",
+        "vimdoc",
+      }
+      local treesitter = require("nvim-treesitter")
 
-      -- Automatically install missing parsers when entering buffer
-      -- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
-      auto_install = false,
+      treesitter.install(parsers):wait(300000)
 
-      indent = { enable = true },
-      highlight = {
-        enable = true,
-        disable = function(_, buf)
-          local max_filesize = 100 * 1024 -- 100 KB
-          local ok, stats =
-            pcall(vim.uv.fs_stat, vim.api.nvim_buf_get_name(buf))
-          if ok and stats and stats.size > max_filesize then
-            return true
+      vim.api.nvim_create_autocmd("FileType", {
+        callback = function(args)
+          local language = vim.treesitter.language.get_lang(vim.bo[args.buf].filetype)
+          if language and vim.list_contains(parsers, language) then
+            vim.treesitter.start(args.buf, language)
+            vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
           end
         end,
-      },
-
-      -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
-      -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
-      -- Using this option may slow down your editor, and you may see some duplicate highlights.
-      -- Instead of true it can also be a list of languages
-      additional_vim_regex_highlighting = false,
-    },
-    config = function(_, opts)
-      require("nvim-treesitter.configs").setup(opts)
+      })
     end,
   },
   {
