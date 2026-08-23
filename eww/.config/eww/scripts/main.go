@@ -6,8 +6,8 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/juancortelezzi/scripts-go/cmd/wifi"
-	"github.com/juancortelezzi/scripts-go/cmd/workspaces_niri"
+	"github.com/juancortelezzi/scripts/cmd/wifi"
+	"github.com/juancortelezzi/scripts/cmd/workspaces_niri"
 )
 
 func main() {
