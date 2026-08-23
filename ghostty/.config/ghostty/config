@@ -14,3 +14,8 @@ window-padding-x = 2
 window-padding-y = 2
 
 confirm-close-surface = false
+
+# Let applications synchronize with the macOS clipboard through OSC 52.
+# Clipboard reads are required for Neovim's `p` over SSH and tmux.
+clipboard-read = allow
+clipboard-write = allow
