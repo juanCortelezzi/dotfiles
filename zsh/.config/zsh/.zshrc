@@ -100,7 +100,7 @@ ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
 # [ -s "$XDG_CONFIG_HOME/bun/_bun" ] && source "$XDG_CONFIG_HOME/bun/_bun"
 
 # Opam init shit
-# [[ ! -r "$XDG_DATA_HOME/opam/opam-init/init.zsh" ]] || source "$XDG_DATA_HOME/opam/opam-init/init.zsh"  > /dev/null 2> /dev/null
+[[ ! -r "$XDG_DATA_HOME/opam/opam-init/init.zsh" ]] || source "$XDG_DATA_HOME/opam/opam-init/init.zsh"  > /dev/null 2> /dev/null
 
 # SDKman init
 # [ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ] && source "$SDKMAN_DIR/bin/sdkman-init.sh"
