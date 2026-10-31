@@ -107,7 +107,13 @@ end
 
 ---@type LazySpec
 return {
-  { "neovim/nvim-lspconfig", lazy = true },
+  {
+    "neovim/nvim-lspconfig",
+    lazy = true,
+    config = function()
+      vim.lsp.enable("ocamllsp")
+    end,
+  },
   {
     "folke/lazydev.nvim",
     ft = "lua",
@@ -172,8 +178,15 @@ return {
     init = function()
       -- default config
       vim.lsp.config("*", {
-        on_attach = on_attach,
         capabilities = get_capabilities(),
+      })
+
+      vim.api.nvim_create_autocmd("LspAttach", {
+        group = vim.api.nvim_create_augroup("user.lsp", { clear = true }),
+        callback = function(event)
+          local client = assert(vim.lsp.get_client_by_id(event.data.client_id))
+          on_attach(client, event.buf)
+        end,
       })
 
       -- redefine filetypes
