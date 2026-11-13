@@ -68,42 +68,8 @@ if [ -f "$ZDOTDIR/zsh-prompt" ]; then
   source "$ZDOTDIR/zsh-prompt"
 fi
 
-# Load pluggins
-ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern regexp)
-
-typeset -A ZSH_HIGHLIGHT_STYLES
-
-ZSH_HIGHLIGHT_STYLES[bracket-level-1]='fg=blue,bold'
-ZSH_HIGHLIGHT_STYLES[bracket-level-2]='fg=red,bold'
-ZSH_HIGHLIGHT_STYLES[bracket-level-3]='fg=yellow,bold'
-ZSH_HIGHLIGHT_STYLES[bracket-level-4]='fg=magenta,bold'
-
-ZSH_HIGHLIGHT_STYLES[alias]='fg=magenta,bold'
-ZSH_HIGHLIGHT_STYLES[builtin]='fg=9'
-ZSH_HIGHLIGHT_STYLES[reserved-word]='fg=9'
-ZSH_HIGHLIGHT_STYLES[path]='fg=yellow,underline'
-ZSH_HIGHLIGHT_STYLES[unknown-token]='none'
-
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
 ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
-
-# start ssh-agent
-# if ! pgrep -u "$USER" ssh-agent > /dev/null; then
-#     ssh-agent -t 1h > "$XDG_RUNTIME_DIR/ssh-agent.env"
-# fi
-
-# if [[ ! -f "$SSH_AUTH_SOCK" ]]; then
-#     source "$XDG_RUNTIME_DIR/ssh-agent.env" >/dev/null
-# fi
-
-# bun completions
-# [ -s "$XDG_CONFIG_HOME/bun/_bun" ] && source "$XDG_CONFIG_HOME/bun/_bun"
-
-# Opam init shit
-# [[ ! -r "$XDG_DATA_HOME/opam/opam-init/init.zsh" ]] || source "$XDG_DATA_HOME/opam/opam-init/init.zsh"  > /dev/null 2> /dev/null
-
-# SDKman init
-# [ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ] && source "$SDKMAN_DIR/bin/sdkman-init.sh"
 
 # zoxide hook
 if command -v -- "zoxide" > /dev/null 2>&1; then
