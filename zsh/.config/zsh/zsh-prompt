@@ -1,7 +1,7 @@
 # load zsh prompts
 fpath=($fpath "$ZDOTDIR/.zfunctions")
 
-if [[ "$(tty)" = "/dev/tty1" ]]; then
+if [[ $TTY == /dev/tty1 ]]; then
     alias x='startx ~/.config/X11/xinitrc'
 fi
 
