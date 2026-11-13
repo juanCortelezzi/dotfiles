@@ -44,7 +44,7 @@ _comp_options+=(globdots)
 (( $+commands[direnv] )) && eval "$(direnv hook zsh)"
 
 bindkey -v
-KEYTIMEOUT=1
+KEYTIMEOUT=10
 
 autoload -Uz add-zle-hook-widget edit-command-line up-line-or-beginning-search down-line-or-beginning-search
 zle -N edit-command-line
@@ -54,17 +54,18 @@ zle -N down-line-or-beginning-search
 ignore-key() {}
 zle -N ignore-key
 
+bindkey -M viins '^?' backward-delete-char
+bindkey -M viins '^H' backward-delete-char
+
 for keymap in viins vicmd; do
-  bindkey -M $keymap '^?' backward-delete-char
-  bindkey -M $keymap '^H' backward-delete-char
   bindkey -M $keymap '^M' accept-line
   bindkey -M $keymap '^K' up-line-or-beginning-search
   bindkey -M $keymap '^J' down-line-or-beginning-search
   bindkey -M $keymap '^E' edit-command-line
-  bindkey -M $keymap '\e[A' up-line-or-beginning-search
-  bindkey -M $keymap '\eOA' up-line-or-beginning-search
-  bindkey -M $keymap '\e[B' down-line-or-beginning-search
-  bindkey -M $keymap '\eOB' down-line-or-beginning-search
+  bindkey -M $keymap '\e[A' up-line-or-history
+  bindkey -M $keymap '\eOA' up-line-or-history
+  bindkey -M $keymap '\e[B' down-line-or-history
+  bindkey -M $keymap '\eOB' down-line-or-history
   bindkey -M $keymap '\e[C' vi-forward-char
   bindkey -M $keymap '\eOC' vi-forward-char
   bindkey -M $keymap '\e[D' vi-backward-char
