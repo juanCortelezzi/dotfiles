@@ -409,6 +409,12 @@ sc_patina_stalled() {
   return 2
 }
 
+sc_path_alias() {
+  fresh "$1" "$2" || return 1
+  run 'PATH=/zz-path-alias:$PATH; path'
+  expect /zz-path-alias || { why="path alias did not show the current PATH"; return 1; }
+}
+
 sc_tab_file() {
   fresh "$1" "$2" || return 1
   typ 'print -r -- ~/.zshe'; key $TAB; sleep 0.3; enter
@@ -478,6 +484,7 @@ for when in immediate loaded; do
   check "focus in/out bytes keep insert mode and Backspace works [$when]" sc_focus_events fo $when
 done
 check "Up at first prompt recalls last session's command [immediate]" sc_up_history_file hist
+check "path alias lists the current PATH [loaded]" sc_path_alias pa loaded
 check "Tab completes a file [loaded]" sc_tab_file tabf loaded
 check "Tab completes tmux subcommand via compinit [loaded]" sc_tab_compsys tabc loaded
 check "autosuggestion shown and accepted with Right [loaded]" sc_autosuggest as loaded
