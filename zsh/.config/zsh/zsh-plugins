@@ -1,0 +1,92 @@
+#!/usr/bin/env zsh
+emulate -R zsh
+setopt err_return no_unset pipe_fail
+
+plugins=${XDG_DATA_HOME:-$HOME/.local/share}/zsh/plugins
+zcompdump=${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompdump-$ZSH_VERSION
+repos=(zsh-users/zsh-autosuggestions zsh-users/zsh-completions)
+patina_version=1.11.0
+typeset -A patina_sha256=(
+  x86_64 00ab75b59aa974fc434e63fc6225a9f5a8fd35b5d4fa2f5c36342dc56bf82005
+  aarch64 e224d055c55957c888c1d027399827553f13a08f6f856fb16cee77084fde5579
+)
+failed=0
+
+say() { print -r -- "$1: $2" }
+fail() { print -ru2 -- "$1: $2"; failed=1 }
+
+clone() {
+  local repo=$1 dir=$plugins/${1:t}
+  if [[ -e $dir ]]; then
+    say ${repo:t} present
+  elif git clone --quiet "https://github.com/$repo.git" "$dir"; then
+    say ${repo:t} installed
+  else
+    fail ${repo:t} "clone failed"
+  fi
+}
+
+pull() {
+  local repo=$1 dir=$plugins/${1:t} before after
+  [[ -e $dir ]] || { clone $repo; return }
+  if [[ -n $(git -C "$dir" status --porcelain) ]]; then
+    fail ${repo:t} "has local changes, skipped"
+    return
+  fi
+  before=$(git -C "$dir" rev-parse --short HEAD)
+  if ! git -C "$dir" pull --quiet --ff-only; then
+    fail ${repo:t} "cannot fast-forward, skipped"
+    return
+  fi
+  after=$(git -C "$dir" rev-parse --short HEAD)
+  [[ $before == $after ]] && say ${repo:t} "up to date" || say ${repo:t} "updated $before..$after"
+}
+
+patina() {
+  local dir=$plugins/zsh-patina arch=$(uname -m) tmp archive sum
+  sum=${patina_sha256[$arch]:-}
+  [[ -n $sum ]] || { fail zsh-patina "no release for $arch"; return }
+  archive=zsh-patina-v$patina_version-$arch-unknown-linux-musl
+  mkdir -p "$dir"
+  tmp=$(mktemp -d "$dir/.download.XXXXXX")
+  {
+    if ! curl -fsSL -o "$tmp/$archive.tar.gz" "https://github.com/michel-kraemer/zsh-patina/releases/download/$patina_version/$archive.tar.gz"; then
+      fail zsh-patina "download failed"
+    elif [[ $(sha256sum "$tmp/$archive.tar.gz") != "$sum "* ]]; then
+      fail zsh-patina "checksum mismatch"
+    elif ! tar -xzf "$tmp/$archive.tar.gz" -C "$tmp"; then
+      fail zsh-patina "extract failed"
+    elif [[ -e $dir/zsh-patina && $(sha256sum <"$tmp/$archive/zsh-patina") == $(sha256sum <"$dir/zsh-patina") ]]; then
+      say zsh-patina "up to date ($patina_version)"
+    else
+      local action=installed
+      [[ -e $dir/zsh-patina ]] && action=updated
+      mkdir -p "$dir/completion"
+      mv -f "$tmp/$archive/completion/_zsh-patina" "$dir/completion/_zsh-patina"
+      mv -f "$tmp/$archive/zsh-patina" "$dir/zsh-patina"
+      say zsh-patina "$action $patina_version"
+      [[ $action == installed ]] || print -r -- "zsh-patina: run 'zsh-patina restart' to restart the daemon"
+    fi
+  } always {
+    rm -rf "$tmp"
+  }
+}
+
+case ${1:-} in
+  install)
+    mkdir -p "$plugins"
+    for repo in $repos; clone $repo
+    [[ -x $plugins/zsh-patina/zsh-patina ]] && say zsh-patina present || patina
+    ;;
+  update)
+    mkdir -p "$plugins"
+    for repo in $repos; pull $repo
+    patina
+    rm -f "$zcompdump"
+    ;;
+  *)
+    print -ru2 -- "usage: ${0:t} install|update"
+    exit 2
+    ;;
+esac
+exit $failed
