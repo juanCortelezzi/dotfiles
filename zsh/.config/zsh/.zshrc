@@ -43,13 +43,46 @@ _comp_options+=(globdots)
 (( $+commands[zoxide] )) && eval "$(zoxide init zsh)"
 (( $+commands[direnv] )) && eval "$(direnv hook zsh)"
 
-autoload -Uz edit-command-line up-line-or-beginning-search down-line-or-beginning-search
+bindkey -v
+KEYTIMEOUT=1
+
+autoload -Uz add-zle-hook-widget edit-command-line up-line-or-beginning-search down-line-or-beginning-search
 zle -N edit-command-line
 zle -N up-line-or-beginning-search
 zle -N down-line-or-beginning-search
-bindkey '^e' edit-command-line
-bindkey '^k' up-line-or-beginning-search
-bindkey '^j' down-line-or-beginning-search
+
+ignore-key() {}
+zle -N ignore-key
+
+for keymap in viins vicmd; do
+  bindkey -M $keymap '^?' backward-delete-char
+  bindkey -M $keymap '^H' backward-delete-char
+  bindkey -M $keymap '^M' accept-line
+  bindkey -M $keymap '^K' up-line-or-beginning-search
+  bindkey -M $keymap '^J' down-line-or-beginning-search
+  bindkey -M $keymap '^E' edit-command-line
+  bindkey -M $keymap '\e[A' up-line-or-beginning-search
+  bindkey -M $keymap '\eOA' up-line-or-beginning-search
+  bindkey -M $keymap '\e[B' down-line-or-beginning-search
+  bindkey -M $keymap '\eOB' down-line-or-beginning-search
+  bindkey -M $keymap '\e[C' vi-forward-char
+  bindkey -M $keymap '\eOC' vi-forward-char
+  bindkey -M $keymap '\e[D' vi-backward-char
+  bindkey -M $keymap '\eOD' vi-backward-char
+  bindkey -M $keymap '\e[I' ignore-key
+  bindkey -M $keymap '\e[O' ignore-key
+done
+unset keymap
+
+cursor-shape() {
+  [[ $KEYMAP == vicmd ]] && print -n '\e[2 q' || print -n '\e[6 q'
+}
+cursor-reset() {
+  print -n '\e[0 q'
+}
+add-zle-hook-widget line-init cursor-shape
+add-zle-hook-widget keymap-select cursor-shape
+add-zle-hook-widget line-finish cursor-reset
 
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
 ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
