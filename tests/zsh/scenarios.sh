@@ -129,11 +129,13 @@ check_known() {
   local name=$1
   shift
   why=""
-  if "$@"; then
-    report 1 "$name"
-  else
+  "$@"
+  local rc=$?
+  if (( rc == 2 )); then
     known=$(( known + 1 ))
     printf 'KNOWN %s%s\n' "$name" "${why:+  ($why)}"
+  else
+    report $(( rc == 0 )) "$name" "$why"
   fi
   t kill-session -t "$S" 2>/dev/null
 }
@@ -318,6 +320,26 @@ sc_up() {
   expect "up-$3" 2 || { why="previous command not recalled"; return 1; }
 }
 
+sc_up_split() {
+  fresh "$1" "$2" || return 1
+  run 'print -r -- up-split'; expect up-split || return 1
+  key 1b; sleep 0.05; key 5b 41; sleep 0.1; enter
+  expect up-split 2 || { why="Up split over 50 ms was not recognised"; return 1; }
+}
+
+sc_up_unmatched_prefix() {
+  fresh "$1" "$2" || return 1
+  run 'print -r -- up-prefix'; expect up-prefix || return 1
+  typ zzz; key $UP_CSI; sleep 0.1; enter
+  expect up-prefix 2 || { why="Up did not recall the previous command over a typed prefix"; return 1; }
+}
+
+sc_backspace_normal_mode() {
+  fresh "$1" "$2" || return 1
+  typ 'print -r -- nm1abc'; key $ESC; sleep 0.1; key $BS; typ x; enter
+  expect nm1ac || { why="got: $(screen | grep -m1 '^nm1')"; return 1; }
+}
+
 sc_up_after_esc() {
   fresh "$1" "$2" || return 1
   run 'print -r -- up-esc'; expect up-esc || return 1
@@ -381,7 +403,10 @@ sc_patina_stalled() {
   expect stall2 1 3000
   local ok=$?
   pkill -CONT -x zsh-patina
-  (( ok == 0 )) || { why="line editor froze until the daemon resumed"; return 1; }
+  (( ok == 0 )) && return 0
+  expect stall2 1 5000 || { why="line editor did not recover after the daemon resumed"; return 1; }
+  why="line editor froze until the daemon resumed"
+  return 2
 }
 
 sc_tab_file() {
@@ -441,6 +466,9 @@ for when in immediate loaded; do
   check "Up CSI \\e[A recalls previous [$when]" sc_up upcsi $when csi "$UP_CSI"
   check "Up SS3 \\eOA recalls previous [$when]" sc_up upss3 $when ss3 "$UP_SS3"
   check "Up after Esc recalls previous [$when]" sc_up_after_esc upesc $when
+  check "Up split over 50 ms recalls previous [$when]" sc_up_split upsplit $when
+  check "Up over an unmatched typed prefix recalls previous [$when]" sc_up_unmatched_prefix uppre $when
+  check "Backspace in normal mode moves left [$when]" sc_backspace_normal_mode bsnm $when
   check "Down CSI \\e[B moves to newer [$when]" sc_down dncsi $when csi "$DOWN_CSI"
   check "Down SS3 \\eOB moves to newer [$when]" sc_down dnss3 $when ss3 "$DOWN_SS3"
   check "^k prefix search [$when]" sc_ctrl_k ck $when
@@ -457,12 +485,13 @@ check "patina highlights the command word [loaded]" sc_highlight hl loaded
 check_known "typing works while the patina daemon is stalled (SIGSTOP) [loaded]" sc_patina_stalled stall loaded
 check "vi cursor is a bar in insert and a block in normal [loaded]" sc_cursor_shape cur loaded
 
+failed_starts=()
 for i in $(seq 100); do
-  start burst$i
+  start burst$i || failed_starts+=("burst$i")
   t kill-session -t "burst$i"
 done
 total=$(( ${#starts[@]} + ${#blank[@]} ))
-(( ${#blank[@]} == 0 )); report $(( ! $? )) "every start draws its prompt without a keypress" "${#blank[@]} of $total starts stayed blank until ^L: ${blank[*]}"
+(( ${#blank[@]} == 0 && ${#failed_starts[@]} == 0 )); report $(( ! $? )) "every start draws its prompt without a keypress" "${#blank[@]} of $total starts stayed blank until ^L: ${blank[*]}; ${#failed_starts[@]} starts failed: ${failed_starts[*]}"
 median=$(printf '%s\n' "${starts[@]}" | sort -n | sed -n "$(( (${#starts[@]} + 1) / 2 ))p")
 echo "startup: first prompt after boot ${first_ms:-?} ms, median ${median} ms over ${#starts[@]} starts"
 echo "result: $pass passed, $fail failed, $known known limitations"
