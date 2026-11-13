@@ -1,0 +1,9 @@
+FROM registry.fedoraproject.org/fedora:43
+RUN dnf -y install --setopt=install_weak_deps=False zsh git stow curl tar gzip unzip tmux ncurses ncurses-term procps-ng glibc-langpack-en && dnf clean all
+COPY xterm-ghostty.terminfo /tmp/xterm-ghostty.terminfo
+RUN tic -x -o /usr/share/terminfo /tmp/xterm-ghostty.terminfo && rm /tmp/xterm-ghostty.terminfo
+RUN useradd -m -s /usr/bin/zsh tester
+USER tester
+WORKDIR /home/tester
+RUN mkdir -p .config .cache .local/share .local/state
+ENV TERM=xterm-ghostty LANG=C.UTF-8
