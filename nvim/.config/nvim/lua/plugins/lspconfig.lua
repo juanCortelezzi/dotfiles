@@ -1,35 +1,11 @@
 ---@param client vim.lsp.Client
 ---@param bufnr integer
 local function on_attach(client, bufnr)
-  vim.diagnostic.config({
-    underline = true,
-    update_in_insert = false,
-    virtual_text = {
-      spacing = 4,
-      source = "if_many",
-      prefix = "●",
-      -- this will set set the prefix to a function that returns the diagnostics icon based on the severity
-      -- this only works on a recent 0.10.0 build. Will be set to "●" when not supported
-      -- prefix = "icons",
-    },
-    severity_sort = true,
-  })
-
-  local is_normal_buffer = vim.bo[bufnr].buftype == ""
-  -- if client.supports_method("textDocument/inlayHint") and is_normal_buffer then
-  --   vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
-  -- end
-
   if
-    client:supports_method("textDocument/codeLens", bufnr) and is_normal_buffer
+    client:supports_method("textDocument/codeLens", bufnr)
+    and vim.bo[bufnr].buftype == ""
   then
-    vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "InsertLeave" }, {
-      desc = "Refresh codelens",
-      buffer = bufnr,
-      callback = function()
-        vim.lsp.codelens.refresh({ bufnr = 0 }) -- current buffer
-      end,
-    })
+    vim.lsp.codelens.enable(true, { bufnr = bufnr })
   end
 
   local keymap = vim.keymap.set
@@ -107,7 +83,13 @@ end
 
 ---@type LazySpec
 return {
-  { "neovim/nvim-lspconfig", lazy = true },
+  {
+    "neovim/nvim-lspconfig",
+    lazy = true,
+    config = function()
+      vim.lsp.enable("ocamllsp")
+    end,
+  },
   {
     "folke/lazydev.nvim",
     ft = "lua",
@@ -125,7 +107,7 @@ return {
   {
     "mason-org/mason.nvim",
     build = ":MasonUpdate",
-    cmd = "Mason",
+    lazy = false,
     opts = {},
   },
   {
@@ -133,47 +115,37 @@ return {
     event = { "BufReadPre", "BufNewFile" },
     dependencies = {
       "neovim/nvim-lspconfig",
-      "williamboman/mason.nvim",
+      "mason-org/mason.nvim",
       { "saghen/blink.cmp", optional = true },
       { "hrsh7th/nvim-cmp", optional = true },
     },
     opts = {
-
       automatic_enable = true,
-      -- handlers = {
-      --
-      --   ["denols"] = function()
-      --     local lspconfig = require("lspconfig")
-      --     lspconfig.denols.setup({
-      --       on_attach = on_attach,
-      --       capabilities = get_capabilities(),
-      --       root_dir = lspconfig.util.root_pattern("deno.json", "deno.cjson"),
-      --       filetypes = { "typescript", "typescriptreact", "typescript.tsx" },
-      --     })
-      --   end,
-      --
-      --   ["pyright"] = function()
-      --     local lspconfig = require("lspconfig")
-      --     lspconfig.pyright.setup({
-      --       on_attach = on_attach,
-      --       capabilities = get_capabilities(),
-      --       settings = {
-      --         python = {
-      --           analysis = {
-      --             typeCheckingMode = "basic",
-      --           },
-      --         },
-      --       },
-      --     })
-      --   end,
-      -- },
     },
 
     init = function()
+      vim.diagnostic.config({
+        underline = true,
+        update_in_insert = false,
+        virtual_text = {
+          spacing = 4,
+          source = "if_many",
+          prefix = "●",
+        },
+        severity_sort = true,
+      })
+
       -- default config
       vim.lsp.config("*", {
-        on_attach = on_attach,
         capabilities = get_capabilities(),
+      })
+
+      vim.api.nvim_create_autocmd("LspAttach", {
+        group = vim.api.nvim_create_augroup("user.lsp", { clear = true }),
+        callback = function(event)
+          local client = assert(vim.lsp.get_client_by_id(event.data.client_id))
+          on_attach(client, event.buf)
+        end,
       })
 
       -- redefine filetypes
@@ -199,30 +171,6 @@ return {
         },
         root_markers = { "mix.exs", ".git" },
       }
-
-      -- vim.lsp.config.elixirls = {
-      --   capabilities = {
-      --     textDocument = {
-      --       hover = {
-      --         dynamicRegistration = true,
-      --         contentFormat = { "markdown", "plaintext" },
-      --       },
-      --     },
-      --   },
-      -- }
-
-      -- vim.lsp.config.lexical = {
-      --   cmd = {
-      --     vim.fn.expand("~/.local/share/nvim/mason/bin/lexical"),
-      --     "server",
-      --   },
-      --   cmd_cwd = vim.fn.expand("~/.local/share/nvim/mason/packages/lexical"),
-      --   capabilities = vim.tbl_deep_extend("force", get_capabilities(), {
-      --     textDocument = {
-      --       hover = nil,
-      --     },
-      --   }),
-      -- }
 
       vim.lsp.config.tailwindcss = {
         filetypes = {

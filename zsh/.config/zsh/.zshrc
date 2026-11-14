@@ -42,6 +42,7 @@ _comp_options+=(globdots)
 
 (( $+commands[zoxide] )) && eval "$(zoxide init zsh)"
 (( $+commands[direnv] )) && eval "$(direnv hook zsh)"
+[[ -r $XDG_DATA_HOME/opam/opam-init/init.zsh ]] && source "$XDG_DATA_HOME/opam/opam-init/init.zsh" >/dev/null 2>&1
 
 bindkey -v
 KEYTIMEOUT=10
